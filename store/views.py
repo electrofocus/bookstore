@@ -10,7 +10,6 @@ class BookListView(generics.ListAPIView):
     serializer_class = BookSerializer
     queryset = Book.objects.all()
     filterset_class = BookFilter
-
     permission_classes = (permissions.AllowAny,)
     filter_backends = (filters.SearchFilter, DjangoFilterBackend)
     search_fields = ('title',)
