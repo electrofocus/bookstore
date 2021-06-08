@@ -1,4 +1,4 @@
-from bookstore.celery import send_email_notification
+from bookstore.celery import send_email_task
 from datetime import datetime, timedelta
 
 from rest_framework import generics, permissions, filters
@@ -41,9 +41,16 @@ class OrderCreateView(generics.CreateAPIView):
     permission_classes = (permissions.IsAuthenticated,)
 
     def post(self, request, *args, **kwargs):
-        send_date = datetime.utcnow() + timedelta(seconds=10)
-        email = self.request.user.email
-        message = "lol"
+        response = super().post(request, *args, **kwargs)
+        self.send_thanks(request)
+        return response
 
-        send_email_notification.add.apply_async((email, message), eta=send_date)
-        return super().post(request, *args, **kwargs)
+    def send_thanks(self, request):
+        book_id = request.data['book']
+        send_date = datetime.utcnow() + timedelta(seconds=60)
+        email = self.request.user.email
+        message = "Thanks for ordering the book {} at {}".format(
+            generics.get_object_or_404(Book, id=book_id),
+            datetime.utcnow(),
+        )
+        send_email_task.apply_async((email, message), eta=send_date)
