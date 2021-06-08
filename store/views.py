@@ -8,7 +8,7 @@ from store.serializers import AuthorSerializer, BookSerializer, OrderSerializer
 from store.models import Author, Book, Order
 from store.filters import BookFilter
 
-from bookstore.celery import send_email_task
+from bookstore.tasks import send_email_task
 
 
 class BookCreateView(generics.CreateAPIView):
@@ -61,5 +61,5 @@ class OrderCreateView(generics.CreateAPIView):
             Sincerely, Bookstore.
         '''.format(user.full_name, book, utcnow)
 
-        send_date = utcnow + timedelta(seconds=60)
+        send_date = utcnow + timedelta(seconds=30)
         send_email_task.apply_async((user.email, message), eta=send_date)
