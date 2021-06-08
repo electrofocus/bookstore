@@ -1,12 +1,14 @@
-from bookstore.celery import send_email_task
 from datetime import datetime, timedelta
 
 from rest_framework import generics, permissions, filters
 from django_filters.rest_framework import DjangoFilterBackend
+from django.shortcuts import get_object_or_404
 
 from store.serializers import AuthorSerializer, BookSerializer, OrderSerializer
 from store.models import Author, Book, Order
 from store.filters import BookFilter
+
+from bookstore.celery import send_email_task
 
 
 class BookCreateView(generics.CreateAPIView):
@@ -47,10 +49,17 @@ class OrderCreateView(generics.CreateAPIView):
 
     def send_thanks(self, request):
         book_id = request.data['book']
-        send_date = datetime.utcnow() + timedelta(seconds=60)
-        email = self.request.user.email
-        message = "Thanks for ordering the book {} at {}".format(
-            generics.get_object_or_404(Book, id=book_id),
-            datetime.utcnow(),
-        )
-        send_email_task.apply_async((email, message), eta=send_date)
+        utcnow = datetime.utcnow()
+        book = get_object_or_404(Book, id=book_id)
+        user = request.user
+
+        message = '''
+            Hello, {}!
+
+            Thanks for ordering the book "{}" at {}
+
+            Sincerely, Bookstore.
+        '''.format(user.full_name, book, utcnow)
+
+        send_date = utcnow + timedelta(seconds=60)
+        send_email_task.apply_async((user.email, message), eta=send_date)

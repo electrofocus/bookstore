@@ -1,9 +1,16 @@
+import os
+
 from pathlib import Path
 from datetime import timedelta
 
+import dotenv
+
+ENV_PATH = '.env'
+dotenv.load_dotenv(dotenv_path=ENV_PATH)
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = 'django-insecure-3!4qm!9=)wofuei4$-6jdz&naexab3@!i%kt)gre%bm)5)8i&u'
+SECRET_KEY = os.getenv('SECRET_KEY')
 
 DEBUG = True
 
@@ -62,7 +69,15 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    },
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.postgresql',
+    #     'NAME': os.getenv('DB_NAME'),
+    #     'USER': os.getenv('DB_USER'),
+    #     'HOST': os.getenv('DB_HOST'),
+    #     'PORT': os.getenv('DB_PORT'),
+    #     'PASSWORD': os.getenv('DB_PASSWORD'),
+    # }
 }
 
 
@@ -152,7 +167,7 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_USE_TLS = True
 EMAIL_PORT = 587
-EMAIL_HOST_USER = 'qlgf3onpum@gmail.com'
-EMAIL_HOST_PASSWORD = "xQ(6F1aXYi'h8'@}(tWD"
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
 
-CELERY_BROKER_URL = 'redis://127.0.0.1:6379/0'
+CELERY_BROKER_URL = os.getenv('REDIS_URL')

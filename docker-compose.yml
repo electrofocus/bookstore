@@ -1,0 +1,54 @@
+version: "3.8"
+
+services:
+  db:
+    image: postgres:12
+    volumes:
+      - ./pgdata:/var/lib/postgresql
+    environment:
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+
+  web:
+    build: .
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    volumes:
+      - ./static:/code/static
+      - ./media:/code/media
+
+    command: sh ./entrypoint.sh 
+    environment:
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_HOST=db
+      - DB_PORT=5432
+      - REDIS_URL=${REDIS_URL}
+
+  redis:
+    image: redis:alpine
+    command: redis-server
+    ports:
+      - "6380:6379"
+
+  celery:
+    build: .
+    command: celery --app bookstore worker --loglevel=INFO
+    volumes:
+      - ./static:/code/static
+      - ./media:/code/media
+    depends_on:
+      - web
+      - redis
+      - db
+    environment:
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_HOST=db
+      - DB_PORT=5432
+      - REDIS_URL=${REDIS_URL}
