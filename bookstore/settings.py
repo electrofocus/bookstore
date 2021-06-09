@@ -170,4 +170,15 @@ EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
 
 CELERY_BROKER_URL = os.getenv('REDIS_URL')
 
-LOGIN_URL = '/admin/login/'
+SWAGGER_SETTINGS = {
+    'USE_SESSION_AUTH': False,
+    'SECURITY_DEFINITIONS': {
+        'basic': {
+            'type': 'apiKey',
+            'name': 'Authorization',
+            'in': 'header',
+            'tokenUrl': '/api/token/',
+        }
+    },
+    'SECURITY_REQUIREMENTS': 'basic',
+}
