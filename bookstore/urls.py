@@ -1,14 +1,16 @@
 from django.contrib import admin
 from django.urls import path, include
-
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
     TokenVerifyView,
 )
 
+from bookstore.docs import schema_view
+
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('swagger/', schema_view.with_ui('swagger', cache_timeout=0)),
     path(
         'api/token/',
         TokenObtainPairView.as_view(),
