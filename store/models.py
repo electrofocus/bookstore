@@ -25,3 +25,4 @@ class Order(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     book = models.ForeignKey(Book, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
+    is_notified = models.BooleanField(default=False)

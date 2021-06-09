@@ -19,17 +19,17 @@ services:
     volumes:
       - ./static:/code/static
       - ./media:/code/media
-
     command: sh ./entrypoint.sh 
     environment:
+      - DEBUG=${DEBUG}
       - DB_NAME=${DB_NAME}
       - DB_USER=${DB_USER}
       - DB_PASSWORD=${DB_PASSWORD}
       - DB_HOST=db
       - DB_PORT=5432
-      - REDIS_URL=${REDIS_URL}
+      - REDIS_URL=redis://redis_db:6379
 
-  redis:
+  redis_db:
     image: redis:alpine
     command: redis-server
     ports:
@@ -37,18 +37,19 @@ services:
 
   celery:
     build: .
-    command: celery --app bookstore worker --loglevel=INFO
+    command: celery --app bookstore worker --loglevel=INFO --uid=nobody --gid=nogroup
     volumes:
       - ./static:/code/static
       - ./media:/code/media
     depends_on:
       - web
-      - redis
+      - redis_db
       - db
     environment:
+      - DEBUG=${DEBUG}
       - DB_NAME=${DB_NAME}
       - DB_USER=${DB_USER}
       - DB_PASSWORD=${DB_PASSWORD}
       - DB_HOST=db
       - DB_PORT=5432
-      - REDIS_URL=${REDIS_URL}
+      - REDIS_URL=redis://redis_db:6379

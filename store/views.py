@@ -56,10 +56,10 @@ class OrderCreateView(generics.CreateAPIView):
         message = '''
             Hello, {}!
 
-            Thanks for ordering the book "{}" at {}
+            Thanks for ordering the book "{}" at {}.
 
             Sincerely, Bookstore.
         '''.format(user.full_name, book, utcnow)
 
         send_date = utcnow + timedelta(seconds=30)
-        send_email_task.apply_async((user.email, message), eta=send_date)
+        send_email_task.apply_async((user.email, message, book_id), eta=send_date)
